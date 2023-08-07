@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-configuration PUBLIC
+
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+ 
+
+<hibernate-configuration>
+
+  <session-factory>
+
+    <property name="hibernate.connection.drivare_class">com.mysql.cj.jdbc.Driver</property>
+
+    <property name ="hibernate.connection.url">jdbc:mysql://localhost:3306/mysql</property>
+
+    <property name="hibernate.connection.username">root</property>
+
+     <property name="hibernate.connection.password">Mitesh@123</property>
+
+        <property name="hibernate.dialet">org.hibernate.showSql</property>
+
+           <property name="hibernate.show_sql">true</property>
+
+           
+
+         <!--   <mapping resource="Employee.hbm.xml" />   --> 
+     <!--  <mapping class="com.mit.hibernate.entity.Employee" />
+     <mapping class="com.mit.hibernate.entity.Address" />
+     <mapping class="com.mit.hibernate.entity.Person" />
+     <mapping class="com.mit.hibernate.entity.Department" />
+     <mapping class="com.mit.hibernate.entity.Student" />
+     <mapping class="com.mit.hibernate.entity.Course" />  -->
+     <mapping class="inheritance.strategy.demo.entity.Employee" />
+     <mapping class="inheritance.strategy.demo.entity.SalariedEmployee" />
+     <mapping class="inheritance.strategy.demo.entity.HourlyWagesEmployee" />
+  </session-factory>
+           
+</hibernate-configuration>
