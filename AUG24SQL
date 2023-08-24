@@ -1,0 +1,25 @@
+create table product(   -- To create the prdouct table
+pid int identity(1,1) primary key,
+pname varchar(20),
+ptype varchar(20));
+
+insert into product values('pizza','food'),('pen','geometry'),('cake','food');
+
+select * from product;  -- To fecth records
+
+create table order5(    -- To create the order table
+orderdate date,
+orderid int,
+pid int identity(1,1) ,
+category varchar(20),
+productname varchar(20));
+
+insert into order5 values(getdate(),1,'food','pizza'),(getdate(),2,'stationary','pen'),(getdate(),3,'food','maggie');   -- To insert the data
+insert into order5 values(getdate(),5,'food','pizza'),(getdate(),6,'stationary','pen'),(getdate(),7,'food','maggie');  
+select * from order5  -- to fetch the data
+
+drop table order5;
+
+select product.pid,product.pname,product.ptype,order5.orderid,order5.orderdate,order5.category,order5.orderdate
+from  product right join order5
+on product.pid=order5.pid;   -- task 2
