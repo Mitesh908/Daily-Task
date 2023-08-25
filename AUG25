@@ -1,0 +1,562 @@
+use aug25; 
+
+create table customer(   -- To craete customer table
+name varchar(20),
+address varchar(20),
+customerid int primary key,
+orderid int  identity(1,1));
+
+insert into customer values('diksha','hyd',101),('jyothi','hyd',102),('samitha','hyd',103);
+
+create table orderitems(   -- To craete ordeeritems table
+customerid int foreign key references customer(customerid),
+itemname varchar(20),
+totalamount money);
+
+insert into orderitems values(101,'samosa',50),(102,'pizzA',500),(103,'sweets',100);
+
+select * from orderitems;    --To selext the records
+
+select * from  customer inner join orderitems   -- using inner join
+on customer.customerid=orderitems.customerid;  
+
+
+create table students(   -- To create student table
+empid int identity(1,1) primary key,
+name varchar(20),
+phoneno bigint);
+
+insert into students values('diksha',738755),('harshit',3665464465),('aman',6364658758),('abhinav',264644657);   -- To insert the records
+
+ select * from students;
+
+drop table students
+
+ create table training(       -- To create training table
+ empid int ,
+ duration int,
+ topic varchar(20),
+ foreign key(empid) references students(empid));
+
+ insert into training values(1,2,'java'),(2,2,'database'),(3,2,'softskills');     --To get the records
+  insert into training values(8,2,'java'),(9,2,'database'),(7,2,'softskills'); 
+
+
+
+ select * from students;   -- To fetch the records from both tables
+ select * from training;
+
+ select students.name,students.empid,training.topic,training.duration   -- To USE FULL JOIN
+ from students full join training
+ on students.empid=training.empid;
+
+ select students.name,students.empid,training.topic,training.duration   -- To USE FULL JOIN
+ from students inner join training
+ on students.empid=training.empid;
+
+ 
+ select students.name,students.empid,training.topic,training.duration   -- To USE FULL JOIN
+ from students left join training
+ on students.empid=training.empid;
+
+ 
+ select students.name,students.empid,training.topic,training.duration   -- To USE RIGHT JOIN
+ from students right join training
+ on students.empid=training.empid;
+
+ --Task 1
+ create table products(    -- To create the product table
+ product_id int identity(1,1) primary key,
+ product_name varchar(20),
+ category varchar(20),
+ price int);
+
+ insert into products values('pizza','food',100),('gulab jamun','sweet',600),('maggie','food',500);
+  insert into products values('pizza','food',200),('gulab jamun','sweet',300),('maggie','food',400);
+
+ select * from products;
+
+ drop table products;
+
+ create table orders(          -- To create the orders table
+ order_id int identity(1,1),
+ product_id int references products(product_id),
+ cust_name varchar(20),
+ orderdate date);
+
+ select * from orders;  -- To get records
+
+ insert into orders values(1,'diksha',getdate()),(2,'aman',getdate()),(3,'abhi',getdate());
+
+ select products.product_name,products.category,products.price,products.category,orders.order_id,orders.orderdate,orders.cust_name
+ from products inner join orders
+ on products.product_id=orders.product_id;    -- Task 1 using inner join
+
+  select products.product_name,products.category,products.price,products.category,orders.order_id,orders.orderdate,orders.cust_name
+ from products left join orders
+ on products.product_id=orders.product_id;       -- To fetch all the prdoucts infrormation and order info if available
+
+ create table tourist(  -- To create the tourist table
+ id int identity(1,1),
+ name varchar(20),
+ country varchar(20));
+
+ drop table tourist;
+
+ insert into tourist values('aman','india'),('bhanu','pakistan'),('raj','india');  -- Tp insert the record 
+
+ select count(id) as touristdetail, country  --T get the details and use group by clause
+ from tourist
+ group by country;
+
+ -- as is use to give colun name
+
+ select count(id) as touristdetails, country  -- To use the having and find country having mre than one count
+ from tourist
+ group by country 
+ having count(id) > 1
+
+ select products.product_name from products
+ where Exists(select orders.cust_name,orders.product_id from orders where orders.product_id=product.product_id and id>3 );
+
+ 
+create table name(  -- TO CREATE THE IDENTITY TABLE
+id int identity(1,1),
+name varchar(20),
+);
+
+insert into name values('ram'),('raj'),('ronak');  -- To insert records
+insert into name values('rishab'),('rohit'),('ramesh');
+
+select * from name    -- To fetch the records
+
+select name,     -- To  get the records using if and else condition
+case 
+    when name='ram' then 'it is me'
+	when name='raj' then 'it is my brother'
+	else 'dont know'
+End AS results
+from name
+
+drop table name
+
+select * into newtable from products -- To create the new  duplicate table
+
+insert  into newtable(product_name,category)  -- To insert the selected data
+select product_name,category 
+from products where product_id=1;
+  
+
+create table customer1(  -- To create the customer table
+customername varchar(20),
+cust_id int identity(1,1) primary key);
+ drop table customer1
+
+insert into customer1 values('aman'),('diksha'),('abhi');
+
+create table order1(  -- To create the order table
+cust_id int foreign key references customer1(cust_id),
+price money,
+category varchar(20),
+productname varchar(20));
+
+insert into order1 values(1,500,'food','maggie'),(2,600,'food','samose'),(3,50,'stationary','pen');
+
+select * from  order1;  -- To fetch the records
+select * from customer1;
+
+select order1.productname,order1.category,order1.price,order1.cust_id,customer1.customername
+from order1 inner join customer1
+on order1.cust_id=customer1.cust_id    -- To fetch the records
+
+   -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+   --AUg 25
+
+   create table customer2(   -- To create customer table
+   custid int primary key,
+   customername varchar(20));
+
+   insert into customer2 values(1,'aman'),(2,'abhi'),(3,'harshit');
+
+   select * from customer2;
+
+   create table product4(    -- To create the products table
+   custid int foreign key references customer2(custid),
+   productname varchar(20))
+
+   insert into product4 values(1,'pen'),(2,'samosa'),(3,'pizzA')  -- To insert the values
+
+   create table order3(
+      custid int foreign key references customer2(custid),
+	  orderdate date,
+	  price bigint
+	  );
+
+	  insert into order3 values(1,getdate(),500),(2,getdate(),400),(3,getdate(),200);  -- To insert the data
+
+select customer2.customername,product4.productname,order3.price 
+from customer2 inner join order3 
+on customer2.custid=order3.custid  inner join product4 
+on customer2.custid=product4.custid;   -- TO work with more than 2 tables
+
+----------------------------------------------------
+--TO CREATE VIEW
+
+create  view test2 as             -- To create the view of more thsn 2 two tables
+(select * from  product4 union all select * from customer2 )union all select * from customer2  
+
+select * from test2;   -- To read the view table data
+
+create view test1 as             -- To create the view
+select * from  product4 union all select * from customer2
+
+select * from test1;   -- To read the view table data
+
+--To create the store procedure
+create procedure spname as 
+select * from prod
+
+-- fore callingg the stored procedure
+exec spname
+
+--------------------------------------------------
+--PROCEDUURE
+
+create table product5(   -- to create table 5
+product int identity(1,1) primary key,
+productname varchar(20))
+
+create procedure spname as  -- To create the procedure for inserting data
+insert into product5 values('raj'),('ramesh');
+
+exec spname;-- To call the procedure
+
+
+create procedure spname2 as   -- To create the read procedure
+select * from product5
+
+exec spname2;  -- To read all the data
+
+
+------------------------------------------------------------------------
+--To use  predefined function
+
+select CHARINDEX('c','customer') as ResultString  -- To get the index of character
+select CHARINDEX('u','customer') as ResultString
+select CHARINDEX('s','customer') as ResultString
+
+select charindex('M','Mickey') as ResultString 
+
+-------------------------------------------------------------------------------------------------------
+
+--TO USE VARIABLE
+
+declare @varname varchar(100);    --TO declare the variable
+
+set @varname='custid';          --TO set the value of variable
+
+
+select CHARINDEX('c',@varname) as ResultString  -- To get the index of character
+select CHARINDEX('u',@varname) as ResultString
+select CHARINDEX('s',@varname) as ResultString
+
+select charindex('M',@varname) as ResultString 
+
+---------------------------------------------------------------------------------------
+--ASSIGNMENT
+
+
+select concat('c','customer') as ResultString  -- To get the index of character
+
+select Lower('INDIA') as ResultString   -- To chnage thye string into lowercase
+ 
+select REPLACE('string','INDIA','PAKISTAN') as ResultString   --To replace the one country with other
+
+select Trim('       Arabian           ') as ResultString  -- Remove leading and trailing spaces from a string:
+
+select Len('Arabian') as ResultString    -- To get the length of the string
+
+select abs(-877) as ResultString  --Returns the absolute value of numeric expression.
+
+select acos(-877) as ResultString   -- to get the Return the arc cosine of a number:
+
+select floor(21.53) as ResultString   --Returns the largest integer value that is not greater than passed numeric expression.
+
+select ceiling( 26.5) as ResultString  -- To return the greater values
+
+SELECT DATEDIFF(month, '2017/08/25', '2011/08/25') AS DateDiff;  -- to get the differences between date
+
+SELECT DATENAME(yy, '2017/08/25') AS ResultString; -- To return the specified part
+
+SELECT DATENAME(year, '2017/08/25') AS ResultString; -- to get the year & Return a specified part of a date:
+
+SELECT DATEPART(yy, '2017/08/25') AS ResultString;   --Return a specified part of a date:
+
+------------------------------------------------------------------------------------------------------------
+
+
+--1 MILLION RECRDS
+
+
+Create Table Employees1					--TO CREATE EMPLOYEE TABLE
+(
+Id int primary key identity,
+Name nvarchar(50),
+Email nvarchar(50),
+Department nvarchar(50)
+)
+
+
+Go										 --TO INSERT 1 MILLION RECORDS
+SET NOCOUNT ON
+Declare @counter int = 1                 --To set the counter value
+While(@counter <= 1000000)               --using while loop to insert records
+Begin
+Declare @Name nvarchar(50) = 'ABC ' + RTRIM(@counter)
+Declare @Email nvarchar(50) = 'abc' + RTRIM(@counter) + '@pragimtech.com'
+Declare @Dept nvarchar(10) = 'Dept ' + RTRIM(@counter)
+Insert into Employees1 values (@Name, @Email, @Dept)
+Set @counter = @counter +1
+If(@Counter%100000 = 0)                     -- to check the 1 million records are inserted or not
+Print RTRIM(@Counter) + ' rows inserted'
+End
+
+
+Create Table Employeeswithoutkey       --TO CREATE EMPLOYEE TABLE
+(
+Id int  identity,
+Name nvarchar(50),
+Email nvarchar(50),
+Department nvarchar(50)
+)
+
+Go														--TO INSERT 1 MILLION RECORDS
+SET NOCOUNT ON
+Declare @counter int = 1								 --To set the counter value
+While(@counter <= 1000000)								 --using while loop to insert records
+Begin
+Declare @Name nvarchar(50) = 'ABC ' + RTRIM(@counter)
+Declare @Email nvarchar(50) = 'abc' + RTRIM(@counter) + '@pragimtech.com'
+Declare @Dept nvarchar(10) = 'Dept ' + RTRIM(@counter)
+Insert into Employeeswithoutkey values (@Name, @Email, @Dept)
+Set @counter = @counter +1
+If(@Counter%100000 = 0)										 -- to check the 1 million records are inserted or not
+Print RTRIM(@Counter) + ' rows inserted'
+End
+
+select * from Employees1 where id=12						--primary key table
+
+select * from Employeeswithoutkey where id =12				-- withoutkey tables
+
+select * from Employees1 where Name='ABC 12'				-- To search by name  in the 1 million records table
+
+-- To do indexing in  2 table which is without primary key (right click in execution plan ,missing index details)
+
+-------------------------------------------------------------------------------------------------------------------------------------
+--TYPECASTE
+
+create table account(									-- create table account
+id float)
+
+insert into account values(5.6)							-- to insert records
+
+select  cast(id as int) from account					-- To cast the float into int from account table
+
+create table account2(									--To create the table account
+name text)
+
+insert into account2 values('ram');
+
+select cast(name as varchar(max)) from account2;		-- To cast the text to varchar from account table
+
+
+------------------------------------------------------------------------------------------------
+
+create table marks(                                    -- To create the marks table
+id int identity(1,1) primary key,
+marks int)
+
+insert into marks values(90),(80),(40);					--To insert the records
+
+
+--IIF( condition,'result1','result2')
+select id, IIF(marks>80,'pass','fail') from marks;		--To use if condition and fetch records
+
+
+----To check what type of data a column is storing
+select isnumeric(3243);									 -- It will retun 1 if its number
+
+select isnumeric('hi');									-- IT WILL RETUN 0 IF NOT NUMBER
+
+SELECT  ISNUMERIC(43538);								 -- It will retun 1 if its number
+
+SELECT ISNUMERIC('RAJ');								  -- IT WILL RETUN 0 IF NOT NUMBER
+
+select isnumeric(25);										-- It will retun 1 if its number
+
+select isnumeric('mukesh');								-- IT WILL RETUN 0 IF NOT NUMBER
+
+---------------------------------------------------------------------------------------------------------
+
+
+Declare @integer1 int											--To declare the variable
+
+set @integer1=10;                                               --To set the values
+
+Declare @integer2 int
+
+set @integer1=-1;
+
+select sum(@integer1+@integer2 )
+
+----------------------------------------------------------------------------------------------------
+
+--TO CREATE THE FUNCTION
+
+create table exam(
+name varchar(50),
+historymarks int,chemistrymarks int);
+
+insert into exam values('mukesh',30,40),('ram',34,25);		
+insert into exam values('mukesh',30,40),('ram',34,-25);	-- To insert the data inside the table
+
+CREATE FUNCTION  getsupplierDetails(@FirstNumber int , @SecondNumber int)							-- To create the function 
+Returns varchar(50)	
+AS
+BEGIN
+	RETURN @FirstNumber + @SecondNumber
+END
+
+select name,dbo.getsupplierDetails(historymarks,chemistrymarks) AS result from exam;	--To fetch the results from the function
+
+
+--To modify  the function
+Alter function getsupplierDetails(@FirstNumber int , @SecondNumber int)	   --To alter the function
+RETURNS varchar(50)
+AS
+BEGIN 
+   RETURN @FirstNumber * @SecondNumber
+END
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+drop table students
+--Assignment 
+
+create table students(					--To creaet the student table
+student_id int identity(1,1) primary key,
+studentname varchar(20))
+
+--To insert the records
+insert into students values('rohit'),('raj'),('ramesh'),('raju');
+
+drop table courses						--To  drop the courses table 
+
+create table courses(					--To  create the courses table 
+courseid int unique,
+coursename varchar(20))
+
+insert into courses values(101,'maths'),(102,'science'),(103,'english'),(104,'hindi');
+
+
+drop table enrollments					 --To drop table enrollment
+
+create table enrollments(				-- tO CREATE the  enrollments table
+enrollment_id int identity(1,1) primary key,
+student_id int,
+couse_id int,
+grade varchar(4)
+);
+
+insert into enrollments values(1,101,'A'),(2,102,'B'),(3,103,'C'),(4,104,'D');  -- To insert the records
+
+
+select * from students;            --To fecth records
+select * from courses;
+select * from enrollments;
+
+drop table enrollments
+
+--TO CREATE THE FUNCTION TO CALCULATE GPA  INSERTING VALUE IN AGGREGATE VALUE
+
+ CREATE FUNCTION calculate_gpa(@student_id INT)   
+ RETURNS DECIMAL(4, 2)
+BEGIN
+    DECLARE @total_points DECIMAL(10, 2);
+    DECLARE @total_credits INT;
+	DECLARE @gpa DECIMAL(4,2);
+
+
+    SELECT @total_points=COALESCE(SUM(               
+        CASE grade
+            WHEN 'A' THEN 4.0
+            WHEN 'B' THEN 3.0
+            WHEN 'C' THEN 2.0
+            WHEN 'D' THEN 1.0
+            WHEN 'F' THEN 0.0
+            ELSE 0.0
+        END),0)
+    FROM  enrollments
+    WHERE enrollments.student_id = @student_id;
+
+	SELECT @total_credits = COUNT(*)               --To get the total_credit
+    FROM enrollments
+    WHERE student_id = @student_id;
+
+    IF @total_credits > 0                           --To check
+        SET @gpa = @total_points / @total_credits;
+    ELSE
+        SET @gpa = 0.0;
+    RETURN @gpa;
+END;
+
+
+select student_id,studentname ,dbo.calculate_gpa(student_id) as gpa from Students;  -- To fetch the results according to the grades
+
+select * from enrollments
+---------------------------------------------------------------------------
+select coalesce(null,1,2);				-- coalescewill return first not null value
+select coalesce(2,1,2);
+select coalesce(null,3,2);
+
+
+
+------------------------------------------------------------------------------------------------------------
+/*     FINAL CODE FOR GPA CALCULATION(SIR)
+CREATE FUNCTION calculate_gpa2 (@student_id INT) RETURNS DECIMAL(4, 2)
+BEGIN
+    DECLARE @total_points DECIMAL(10, 2);
+    DECLARE @total_credits INT;
+    DECLARE @gpa DECIMAL(4, 2);
+
+    SELECT @total_points = SUM(
+        CASE grade
+            WHEN 'A' THEN 4.0
+            WHEN 'B' THEN 3.0
+            WHEN 'C' THEN 2.0
+            WHEN 'D' THEN 1.0
+            WHEN 'F' THEN 0.0
+            ELSE 0.0
+        END)
+    FROM enrollments
+    WHERE student_id = @student_id;
+
+    SELECT @total_credits = COUNT(*)
+    FROM enrollments
+    WHERE student_id = @student_id;
+
+    IF @total_credits > 0
+        SET @gpa = @total_points / @total_credits;
+    ELSE
+        SET @gpa = 0.0;
+
+    RETURN @gpa ;
+END;
+
+SELECT student_id, student_name, dbo.calculate_gpa2(student_id) AS gpa
+FROM students;
+
+*/
+--------------------------------------------------------------------------
+
+
