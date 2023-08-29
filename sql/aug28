@@ -1,0 +1,509 @@
+
+   create table customer2(   -- To create customer table
+   custid int primary key,
+   customername varchar(20));
+
+   insert into customer2 values(1,'aman'),(2,'abhi'),(3,'harshit');
+
+   select * from customer2;
+
+   create table product4(    -- To create the products table
+   custid int foreign key references customer2(custid),
+   productname varchar(20))
+
+   insert into product4 values(1,'pen'),(2,'samosa'),(3,'pizzA')  -- To insert the values
+
+   create table order3(
+      custid int foreign key references customer2(custid),
+	  orderdate date,
+	  price bigint
+	  );
+
+	  insert into order3 values(1,getdate(),500),(2,getdate(),400),(3,getdate(),200);  -- To insert the data
+
+	create view new as   --- To create the view 
+	select * from  product4 union all select * from customer2;
+
+	select * from new;
+
+	create procedure spname as
+	insert product4 values(5,'macd'),(6,'domino'),(7,'burger')
+
+	exec spname -- to csll the procedure
+
+	
+--TO USE VARIABLE
+
+declare @varname varchar(100);    --TO declare the variable
+
+set @varname='custid';          --TO set the value of variable
+
+
+create table account(									-- create table account
+id float)
+
+insert into account values(5.6)							-- to insert records
+
+select  cast(id as int) from account					-- To cast the float into int from account table
+
+create table account2(									--To create the table account
+name text)
+
+insert into account2 values('ram');
+
+select cast(name as varchar(max)) from account2;		-- To cast the text to varchar from account table
+
+use aug28;
+create table student(				--		To create the student table
+student_id int identity(1,1) primary key ,
+student_name varchar(20),
+)
+
+insert into student values('mitesh'),('raj'),('ramesh')
+
+drop table student    -- To drop the student table
+
+create table course(				--		To create the course  table
+course_id int unique ,
+course_name varchar(20),
+)
+ 
+insert into course values(101,'maths'),(102,'science'),(103,'physics')    -- To insert the data 
+
+create table enrollment(				--		To create the course  table
+enrollment_id int unique ,
+student_id int foreign key references student(student_id),
+course_id int,
+grade  varchar(20)
+)
+ 
+insert into enrollment values(1,1,101,'A'),(2,2,102,'B'),(3,3,103,'C')    -- To insert the data 
+
+select * from enrollment   --To fetch the records 
+select * from student
+select * from course
+
+--To create the function
+
+
+ CREATE FUNCTION calculate_gpa(@student_id INT)   
+ RETURNS DECIMAL(4, 2)
+BEGIN
+    DECLARE @total_points DECIMAL(10, 2);
+    DECLARE @total_credits INT;
+	DECLARE @gpa DECIMAL(4,2);
+
+
+    SELECT @total_points=COALESCE(SUM(               
+        CASE grade
+            WHEN 'A' THEN 4.0
+            WHEN 'B' THEN 3.0
+            WHEN 'C' THEN 2.0
+            WHEN 'D' THEN 1.0
+            WHEN 'F' THEN 0.0
+            ELSE 0.0
+        END),0)
+    FROM  enrollment
+    WHERE enrollment.student_id = @student_id;
+
+	SELECT @total_credits = COUNT(*)               --To get the total_credit
+    FROM enrollment
+    WHERE student_id = @student_id;
+
+    IF @total_credits > 0                           --To check
+        SET @gpa = @total_points / @total_credits;
+    ELSE
+        SET @gpa = 0.0;
+    RETURN @gpa;
+END;
+
+SELECT student_id, student_name, dbo.calculate_gpa(student_id) AS gpa   -- To get the records
+FROM student;
+
+
+--To declare the varibale
+
+Declare @integer1 int											--To declare the variable
+
+set @integer1=10;                                               --To set the values
+
+Declare @integer2 int
+
+set @integer1=20;
+
+Declare @Month int
+
+set @Month=8;
+
+select sum(@integer1+@integer2+@Month )
+
+
+create function sum(@integer1 int,@integer2 int,@Month int)
+returns int
+BEGIN  
+     RETURN @integer1 + @integer2 +@Month
+
+End
+
+-------------------------------------------------------------------------------
+-- assignment1  CAR
+	
+CREATE  TABLE car(																--TO create the table car
+CAR_ID INT IDENTITY(1,1) PRIMARY KEY,
+CAR_NAME varchar(20),
+CAR_YEAR INT)
+
+insert into car values('bmw',2019),('audi',2021),('thar',2022)					--To  insert therecords
+
+CREATE FUNCTION udfProductInYear(@model_year int)								--To create the function
+RETURNS  TABLE
+AS
+    Return select * from car where CAR_YEAR=@model_year;
+
+	select * from udfProductInYear(2019)										--To fetch the value
+
+
+	
+CREATE FUNCTION udfProductInYear(@model_year int)								 --To modify the function
+RETURNS  TABLE
+AS
+    Return select * from car where CAR_YEAR=@model_year;
+
+	
+	select * from udfProductInYear(2021)   	--To call the function
+
+
+
+----------------------------------------------------------------------------------------------------------
+
+create table bacth1(				--To create the batch 1 table 
+id int identity(1,1) primary key,
+name varchar(20),
+passyear int );
+
+insert  into bacth1 values('raju',2021),('ramesh',2023),('harshit',2022)  -- To inswrt the records
+
+
+create table batch2(				--To create the batch 1 table 
+id int identity(1,1) primary key,
+name varchar(20),
+passyear int );
+
+insert  into batch2 values('rakesh',2021),('rohit',2023),('harsha',2022)  -- To inswrt the records
+
+CREATE FUNCTION studdetails()									--To create the function
+RETURNS TABLE
+AS
+ RETURN select * from bacth1 union all select * from batch2 ;
+
+
+ select * from dbo.studdetails();                         --To fetch the data
+
+ drop function studdetails							     --To drop the function
+
+
+ --------------------------------------------------------------------------------------------
+ create table 
+ --CREATE THE MULTISTATEMENT FUNCTION 
+
+ CREATE  FUNCTION udfcontacts()     -- TO create the function 
+ RETURNS @contacts TABLE(
+     first_name varchar(20),
+	 last_name varchar(20))
+ AS
+ BEGIN
+    INSERT INTO @contacts
+	SELECT first_name,last_name FROM aug28.staffs;
+
+	INSERT INTO @contacts
+	SELECT first_name,last_name FROM  aug28.customers;
+    RETURN
+END;
+
+
+SELECT * FROM udfcontacts();												--TO FETCH THE RECORDS
+
+
+------------------------------------------------------------------
+--To  create the multistatement function
+
+create table staff(														 --To create the staff table
+id int identity(1,1) primary key,
+first_name varchar(20),
+last_name varchar(20))
+
+insert into staff values('raj','sharma'),('mahesh','dutt')					--To  insert the records
+
+CREATE FUNCTION udfcontacts2()												--To create the functions
+RETURNS @Contacts TABLE(
+   first_name varchar(20),
+   last_name varchar(20))
+AS
+BEGIN 
+  INSERT INTO @Contacts
+  select first_name,last_name From staff
+
+  RETURN;
+END;
+
+select * from dbo.udfcontacts2();												--To fetch the records
+
+-------------------------------------------------------------------------------------------------
+
+
+create table customer(											--To create the customer table
+customer_id int identity(1,1) primary key,
+cust_name varchar(20)
+);
+
+insert into customer values('ramesh'),('diksha'),('bhanu'),('abhi');			--To insert the data
+
+select * from  customer														--To fetch  the data
+
+create table orders(														--To create the customer table
+customer_id int foreign key references customer(customer_id),
+order_total int
+);
+
+insert into orders values(1,100),(2,200),(1,50),(2,100),(3,200);			--To insert the data
+
+select * from  customer
+select * from orders
+
+select customer.cust_name,sum(orders.order_total)						-- To get the total of customer by name without function
+from customer inner join orders
+on customer.customer_id=orders.customer_id  
+group by customer.cust_name			
+
+
+
+WITH customerTotalAmount AS (SELECT customer_id,Sum(order_total)             --Writing query into two part and combinating using table  CTE
+AS totalamount						
+FROM orders
+GROUP BY customer_id
+)
+select customer.cust_name,customerTotalAmount.totalamount 
+from customer inner join customerTotalAmount
+on customer.customer_id=customerTotalAmount.customer_id;
+
+
+
+
+
+create function  payment_details(@customerid int)                       --- With function
+RETURNS bigint
+AS
+BEGIN 
+    Declare @total_amount int
+
+	select @total_amount = sum(order_total) from orders where customer_id=@customerid;
+	return  @total_amount
+END
+
+select cust_name,dbo.payment_details(customer_id) as totalamount from customer;
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+create table batch1(     -- to create the batch1 table
+empid int identity(1,1),
+name varchar(20))
+
+insert into batch1 values('raj'),('mohit'),('diksha')				   --To insert the records
+
+select * from batch1
+
+create table batch2(     -- to create the batch2 table
+empid int identity(1,1),
+name varchar(20))
+
+insert into batch2 values('harhsit'),('mahesh'),('dipak')    --To insert the records
+
+with combination as(
+select * from batch1 union select * from batch2)
+select empid,name , ROW_NUMBER()           -- To fetch the records from both tables and to use window functionality
+over(partition by empid order by empid)
+as rownumber
+from  combination ; 
+
+
+
+drop table batch2;
+--------------------------------------------------------------------
+
+
+select cutsomer_Id ,ROW_NUMBER over(partition  by customerId order by customerId)  from orders     -- To use ROW NUMBER 
+
+
+-------------------------------------------------------------------------
+
+--RANK , DENSE RANK , ROW NUMBER
+with combination as(select * from batch1 union select * from batch2)
+select name,empid, ROW_NUMBER() over(partition by name order by name) as rownumber ,
+RANK()  over(order by name),DENSE_RANK over(order by name) as denserank  from combination
+
+
+----------------------------------------------------------------------------------------
+
+-- To insert the 500 recordsa
+
+ Declare  @counter int;										  --To declare the variable
+ set @counter=1
+
+ while(@counter<10)											-- To start the loop
+ BEGIN
+      print @counter
+
+	  if @counter>6 
+	  BEGIN
+	    BREAK;
+	  END
+	  set @counter = @counter+1;
+ END
+
+
+ -------------------------------------------------------------------
+ create table stud(											--To create student table
+ id int identity(1,1) primary key,
+ name varchar(20))
+ 
+ 
+ Declare  @counter int;										  --To declare the variable
+ set @counter=1
+ while(@counter<500)											-- To start the loop
+ BEGIN
+      insert into stud values('raj'),('mohit'),('diksha')      --To insert the values
+
+	   if @counter>500
+	  BEGIN
+	    BREAK;
+	  END
+	  set @counter = @counter+1;
+	
+ END
+
+
+ select * from stud           --To fetch the data
+
+ drop table stud
+
+
+----------------------------------------------------------------------------------------
+
+create table stud1(
+primary_id int identity(1,1),
+name varchar(20),
+marks int,
+result varchar(20))
+
+insert into stud1(name,marks) values('raj',75),('yogi',85),('rahul',13),('aman',79),('modi',28)
+
+
+declare @row_count int;								   --To chekc the row nd declare variable
+set @row_count= (select  count(*) from stud1);
+declare @count int
+set @count=1;
+	
+while(@count<=@row_count)								 -- to find the pass naqd fail students
+begin
+declare @mar int 
+set @mar=(select marks from stud1 where primary_id=@count) 
+if(@mar>36)
+begin
+update stud1 set result='pass' where primary_id=@count;
+end
+else 
+update stud1 set result='fail' where primary_id=@count;
+set @count=@count+1;
+end
+
+
+select * from stud1;								 -- To fetch the data
+
+
+---------------------------------------------------------------------
+
+declare @counter int;						 --To print only selected no
+set @counter=1;
+
+while(@counter<15)
+begin
+set @counter =@counter+1;
+   if @counter >7 and @counter<11 
+   continue;
+   print @counter;
+end
+
+--------------------------------------------------------------------------
+
+
+create table stud1(
+primary_id int identity(1,1),
+name varchar(20),
+marks int,
+result varchar(20))
+
+insert into stud1(name,marks) values('raj',75),('yogi',85),('rahul',13),('aman',79),('modi',28)
+
+
+declare @row_count int;								   --To chekc the row nd declare variable
+set @row_count= (select  count(*) from stud1);
+declare @count int
+set @count=1;
+	
+while(@count<=@row_count)								 -- to find the pass naqd fail students
+begin
+declare @mar int 
+set @mar=(select marks from stud1 where primary_id=@count) 
+if(@mar>36)
+begin
+update stud1 set result='pass' where primary_id=@count;
+end
+else 
+update stud1 set result='fail' where primary_id=@count;
+set @count=@count+1;
+end
+
+
+select * from stud1;								 -- To fetch the data
+
+
+------------------------------------------------------------------
+
+
+create table stud2(
+primary_id int identity(1,1),
+name varchar(20),
+marks int,
+result varchar(20))
+
+insert into stud2 values('raj',75,''),('yogi',85,''),('rahul',13,''),('aman',79,''),('modi',28,'')
+
+select * from stud2
+
+declare @row_count int;								   --To chekc the row nd declare variable
+set @row_count= (select count(*) from stud2);
+declare @count int
+set @count=1;
+	
+while(@count<=10)								 -- to find the pass naqd fail students
+begin
+declare @mar int 
+set @mar=(select marks from stud2 where primary_id=@count) 
+      if(@count<=10)
+      begin
+      update stud2 set result='pass' where primary_id=@count;
+      end
+      else 
+      update stud2 set result='fail' where primary_id=@count;
+      set @count=@count+1;
+end
+
+
+
+select  * from stud2;								 -- To fetch the data
+drop table stud2;
+
+--------------------------------------------------------------------------------
+
