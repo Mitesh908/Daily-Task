@@ -337,6 +337,8 @@ CALL CheckUserLogin('customer_username', 'customer_password');
 -- This will return 'Customer' if the credentials match a customer record
 
 
+-------------------------------------------------------------------------------------
+
 
 
 
