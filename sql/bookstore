@@ -1,0 +1,159 @@
+
+  create table authors(   -- To create author table
+   creationdate date,
+  serialno int not null identity(1,1),
+  authorid int primary key,
+  firstname varchar(50),
+  lastname varchar(50),
+  bookid int foreign key(authorid) references Books(bookid)
+  );
+
+  select * from authors;
+
+  insert into authors  values(getdate(),2001,'dinesh','lal',301);   -- To insert the values
+ 
+
+  drop table  authors;
+
+
+create table Books(    -- TO CREATE BOOK TABLE
+creationdate date,
+serialno int not null identity(1,1),
+bookid int primary key,
+authorid int ,
+publisher int ,
+title VARCHAR(20),
+ISBN int,
+genre varchar(50),
+type varchar(20),
+publication_year date,
+price money,
+condition varchar(20),
+foreign key(bookid) references orderitems(orderid)
+);
+
+select * from Books;   -- To check the records inside the table
+
+--To insert the values 
+insert into Books values(getdate(),301,2001,5001,'jungle book',101,'comic','comic',getdate(),500,'new');
+
+
+drop table Books;
+
+create table publishers (      -- To create publishers table
+   creationdate date,
+  serialno int not null identity(1,1),
+  publisherid int primary key ,
+  country varchar(20),
+  foreign key(publisherid) references Books(bookid)
+  );   -- Primary key
+
+  select * from publishers;
+
+  insert into publishers values(getdate(),5001,'india',301),
+  (getdate(),5002,'india',302);
+  
+
+  drop table publishers;
+
+  create table inventory(   -- To create invnetory table
+  creationdate date,
+  serialno int not null identity(1,1),
+  bookid int foreign key references Books(bookid),
+  stocklevelused bigint ,
+  stocklevelnew bigint 
+  );
+
+  select * from inventory;   -- To check the data inside it
+
+  insert into inventory values(getdate(),301,200,600);
+  
+  drop table inventory;  --  To drop table inventory
+
+  
+  create table customers(  -- To make cutsomers table
+  creationdate date,
+  serialno int  identity(1,1),
+  customerid int primary key,
+  firstname varchar(20),
+  lastname varchar(20),
+  streetname varchar(100),
+  postalcode int,
+  province varchar(100),
+  Country  varchar(20),
+  phonenumber bigint unique
+  );
+
+  -- To insert the cutomers data
+  insert into customers values(GETDATE(),0001,'ramwsh','shrama','hyd',480106,'hyd','india',5254345566);
+   insert into customers values(GETDATE(),0002,'rohit','shrama','hyd',480106,'hyd','india',5252433355);
+    insert into customers values(GETDATE(),0003,'dinesh','shrama','hyd',480106,'hyd','india',525344665);
+
+  select * from customers;   -- To check the records
+
+  drop table customers;   -- To drop the table
+
+
+  select * from Books where bookid=301 and authorid=2001;  -- To get data  using bookid and authorid
+
+  select * from publishers where bookid=301 and publisherid=5001;    -- To get data  using bookid and publisherid
+
+
+
+
+  create table orders(           -- To create orders table
+  creationdate date,
+  serialno int not null identity(1,1),
+  orderid int PRIMARY  KEY,
+  customerid int, 
+  orderdate date,
+  subtotal money,
+  tax money,
+  noofbooks int,
+  shipping varchar(200),
+  total money,
+  Foreign key (orderId) references  customers(customerid));
+
+  select * from orders;
+  
+  insert into orders values(getdate(),1001,0001,getdate(),500,200 ,'madhapur hyderbad',700);
+  insert into orders values(getdate(),1002,0002,getdate(),600,200 ,'madhapur hyderbad',800);
+  insert into orders values(getdate(),1002,0003,getdate(),600,200 ,'madhapur hyderbad',800);
+
+  drop table orders   -- drop table orders
+
+
+
+  create table orderitems(  -- nTo create order items table
+  creationdate date,
+  serialno int not null identity(1,1),
+  orderid int primary key,
+  cutsomerid varchar(20),
+  bookid int ,
+  quantity float,
+  price money,
+  foreign key(orderid) references orders(orderid)
+  );
+
+  insert into orderitems values(getdate(),1001,301,400,500);
+  
+   select * from orderitems;  -- to checkk the data inside it
+
+   drop table orderitems;   -- TO DROP THE TABLE
+
+
+  create table  items(  -- Items table
+  creationdate date,
+  serialno int identity(1,1),
+  itemname varchar(50),
+  itemtype varchar(50),
+  customerid int foreign  key references customers(customerid),
+  orderdate date,
+  );
+
+  insert into items values(getdate(),'jungle book','book',0001,getdate());   --To insert the value
+    insert into items values(getdate(),'cello','pen',0002,getdate());
+
+  select * from items;   -- To check the data
+
+
