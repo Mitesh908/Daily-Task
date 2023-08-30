@@ -304,6 +304,39 @@ BEGIN
     ORDER BY o.order_id;
 END;
 
+--To check who is login in
+CREATE PROCEDURE CheckUserLogin(
+    IN p_username VARCHAR(255),
+    IN p_password VARCHAR(255)
+)
+BEGIN
+    DECLARE user_type VARCHAR(20);
+
+    -- Check if the user is an admin
+    SELECT 'Admin' INTO user_type
+    FROM Admin
+    WHERE username = p_username AND password = p_password;
+
+    IF user_type IS NULL THEN
+        -- Check if the user is a customer
+        SELECT 'Customer' INTO user_type
+        FROM Customer
+        WHERE username = p_username AND password = p_password;
+    END IF;
+
+    -- Return the user type ('Admin' or 'Customer') or NULL if not found
+    SELECT user_type;
+END;
+
+
+--To call procedure
+CALL CheckUserLogin('admin_username', 'admin_password');
+-- This will return 'Admin' if the credentials match an admin record
+
+CALL CheckUserLogin('customer_username', 'customer_password');
+-- This will return 'Customer' if the credentials match a customer record
+
+
 
 
 
