@@ -1,0 +1,317 @@
+use aug30;
+
+CREATE TABLE Author (
+    author_id INT PRIMARY KEY,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    biography TEXT,
+    birthdate DATE,
+    nationality VARCHAR(255)
+);
+
+CREATE TABLE Books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(255),
+    author_id INT,
+    isbn VARCHAR(20),
+    genre VARCHAR(255),
+    published_year INT,
+    publisher VARCHAR(255),
+    price DECIMAL(10, 2),
+    quantity_in_stock INT,
+    FOREIGN KEY (author_id) REFERENCES Author(author_id)
+);
+
+CREATE TABLE Registration (
+    registration_id INT PRIMARY KEY,
+    user_id INT,
+    registration_date DATE,
+    FOREIGN KEY (user_id) REFERENCES Customer(user_id)
+);
+
+CREATE TABLE Admin (
+    admin_id INT PRIMARY KEY,
+    username VARCHAR(255),
+    password VARCHAR(255),
+    email VARCHAR(255),
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    access_level VARCHAR(20)
+);
+
+
+CREATE TABLE Customer (
+    user_id INT PRIMARY KEY,
+    username VARCHAR(255),
+    password VARCHAR(255),
+    email VARCHAR(255),
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    address VARCHAR(255),
+    phone_number VARCHAR(20)
+);
+
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    user_id INT,
+    order_date DATE,
+    total_price DECIMAL(10, 2),
+    FOREIGN KEY (user_id) REFERENCES Customer(user_id)
+);
+
+CREATE TABLE Bucket (
+    bucket_id INT PRIMARY KEY,
+    user_id INT,
+    created_date DATE,
+    FOREIGN KEY (user_id) REFERENCES Customer(user_id)
+);
+
+CREATE TABLE BucketItem (
+    bucket_item_id INT PRIMARY KEY,
+    bucket_id INT,
+    book_id INT,
+    quantity INT,
+    FOREIGN KEY (bucket_id) REFERENCES Bucket(bucket_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);
+
+CREATE TABLE Payment (
+    payment_id INT PRIMARY KEY,
+    user_id INT,
+    payment_date DATE,
+    total_amount DECIMAL(10, 2),
+    FOREIGN KEY (user_id) REFERENCES Customer(user_id)
+);
+
+
+CREATE TABLE OrderItems (
+    order_item_id INT PRIMARY KEY,
+    order_id INT,
+    book_id INT,
+    quantity INT,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);
+
+CREATE TABLE Sales (
+    sales_id INT PRIMARY KEY,
+    admin_id INT,
+    sales_date DATE,
+    sales_amount DECIMAL(10, 2),
+    FOREIGN KEY (admin_id) REFERENCES Admin(admin_id)
+);
+
+CREATE TABLE Reports (
+    report_id INT PRIMARY KEY,
+    admin_id INT,
+    report_date DATE,
+    report_type VARCHAR(255),
+    report_content TEXT,
+    FOREIGN KEY (admin_id) REFERENCES Admin(admin_id)
+);
+
+
+--STORE PROCEDURE TO ADD CUSTOMER
+
+CREATE PROCEDURE CreateCustomer(
+    IN p_username VARCHAR(255),
+    IN p_password VARCHAR(255),
+    IN p_email VARCHAR(255),
+    IN p_first_name VARCHAR(255),
+    IN p_last_name VARCHAR(255),
+    IN p_address VARCHAR(255),
+    IN p_phone_number VARCHAR(20)
+)
+BEGIN
+    INSERT INTO Customer (username, password, email, first_name, last_name, address, phone_number)
+    VALUES (p_username, p_password, p_email, p_first_name, p_last_name, p_address, p_phone_number);
+END;
+
+--TO CALL
+CALL CreateCustomer('john_doe', 'hashed_password', 'john@example.com', 'John', 'Doe', '123 Main St', '123-456-7890');
+
+
+--TO search book
+
+CREATE PROCEDURE SearchBooksByTitle(
+    IN p_title_query VARCHAR(255)
+)
+BEGIN
+    SELECT *
+    FROM Books
+    WHERE title LIKE CONCAT('%', p_title_query, '%');
+END;
+
+--TO call search book
+CALL SearchBooksByTitle('Harry Potter');
+
+
+--To check by author name
+CREATE PROCEDURE SearchBooksByAuthor(
+    IN p_author_query VARCHAR(255)
+)
+BEGIN
+    SELECT b.*
+    FROM Books b
+    JOIN Author a ON b.author_id = a.author_id
+    WHERE CONCAT(a.first_name, ' ', a.last_name) LIKE CONCAT('%', p_author_query, '%');
+END;
+
+
+--To call procedure
+CALL SearchBooksByAuthor('J.K. Rowling');
+
+
+-- to check by category
+CREATE PROCEDURE SearchBooksByCategory(
+    IN p_category_query VARCHAR(255)
+)
+BEGIN
+    SELECT *
+    FROM Books
+    WHERE genre LIKE CONCAT('%', p_category_query, '%');
+END;
+
+
+--To call
+CALL SearchBooksByCategory('Fantasy');
+
+
+--To placeorder
+CREATE PROCEDURE PlaceOrder(
+    IN p_user_id INT,
+    IN p_book_id INT,
+    IN p_quantity INT,
+    IN p_tax_rate DECIMAL(5, 2),
+    IN p_discount DECIMAL(5, 2)
+)
+BEGIN
+    -- Insert into Orders
+    INSERT INTO Orders (user_id, order_date)
+    VALUES (p_user_id, CURDATE());
+
+    SET @last_order_id = LAST_INSERT_ID(); -- Get the last inserted order_id
+
+    -- Insert into OrderItems
+    INSERT INTO OrderItems (order_id, book_id, quantity)
+    VALUES (@last_order_id, p_book_id, p_quantity);
+
+    -- Calculate and update total_price in Orders table
+    UPDATE Orders
+    SET total_price = (SELECT SUM(b.price * oi.quantity) 
+                       FROM OrderItems oi
+                       JOIN Books b ON oi.book_id = b.book_id
+                       WHERE oi.order_id = @last_order_id),
+        tax_amount = total_price * p_tax_rate,
+        discount_amount = total_price * p_discount
+    WHERE order_id = @last_order_id;
+    
+    -- Update book quantity
+    CALL UpdateBookQuantity(p_book_id, p_quantity);
+END;
+
+--To check the orderhistory
+
+CREATE PROCEDURE ViewOrderHistory(
+    IN p_user_id INT
+)
+BEGIN
+    SELECT o.order_id, o.order_date, o.total_price,
+           GROUP_CONCAT(CONCAT(b.title, ' (', oi.quantity, 'x)') SEPARATOR ', ') AS ordered_books
+    FROM Orders o
+    JOIN OrderItems oi ON o.order_id = oi.order_id
+    JOIN Books b ON oi.book_id = b.book_id
+    WHERE o.user_id = p_user_id
+    GROUP BY o.order_id, o.order_date, o.total_price;
+END;
+
+--Too make payment
+CREATE PROCEDURE MakePayment(
+    IN p_order_id INT,
+    IN p_user_id INT,
+    IN p_payment_amount DECIMAL(10, 2)
+)
+BEGIN
+    DECLARE total_order_amount DECIMAL(10, 2);
+    
+    -- Get the total order amount
+    SELECT total_price INTO total_order_amount
+    FROM Orders
+    WHERE order_id = p_order_id AND user_id = p_user_id;
+
+    -- Check if payment amount matches the total order amount
+    IF total_order_amount = p_payment_amount THEN
+        INSERT INTO Payment (user_id, payment_date, total_amount)
+        VALUES (p_user_id, CURDATE(), p_payment_amount);
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Payment amount does not match the total order amount.';
+    END IF;
+END;
+
+
+--ADD ONE MORE COLUMN IN BOOKS
+ALTER TABLE Books
+ADD COLUMN quantity_in_stock INT;
+
+--to UPDATE THE BOOK AFTER ORDER
+CREATE PROCEDURE UpdateBookQuantity(
+    IN p_book_id INT,
+    IN p_quantity INT
+)
+BEGIN
+    UPDATE Books
+    SET quantity_in_stock = quantity_in_stock - p_quantity
+    WHERE book_id = p_book_id;
+END;
+
+
+--ALTER ORDER TABLE 
+ALTER TABLE Orders
+ADD COLUMN tax_amount DECIMAL(10, 2),
+ADD COLUMN discount_amount DECIMAL(10, 2);
+
+--tO PLACE ORDER
+
+--To generate report of popular book
+CREATE PROCEDURE GeneratePopularBooksReport()
+BEGIN
+    SELECT b.title, b.author_id, a.first_name, a.last_name, SUM(oi.quantity) AS total_sold
+    FROM OrderItems oi
+    JOIN Books b ON oi.book_id = b.book_id
+    JOIN Author a ON b.author_id = a.author_id
+    GROUP BY b.book_id
+    ORDER BY total_sold DESC;
+END;
+
+--To generate sales report
+CREATE PROCEDURE GenerateSalesReport()
+BEGIN
+    SELECT o.order_id, o.order_date, c.username AS customer_username, 
+           o.total_price, p.payment_date, p.total_amount
+    FROM Orders o
+    JOIN Customer c ON o.user_id = c.user_id
+    LEFT JOIN Payment p ON o.order_id = p.order_id
+    ORDER BY o.order_id;
+END;
+
+--To craete the customeractivity
+CREATE PROCEDURE GenerateCustomerActivityReport(IN p_user_id INT)
+BEGIN
+    SELECT o.order_id, o.order_date, o.total_price, p.payment_date, p.total_amount
+    FROM Orders o
+    LEFT JOIN Payment p ON o.order_id = p.order_id
+    WHERE o.user_id = p_user_id
+    ORDER BY o.order_id;
+END;
+
+
+
+
+
+
+
+
+
+
+
+
