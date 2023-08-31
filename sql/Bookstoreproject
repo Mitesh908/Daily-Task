@@ -337,6 +337,13 @@ CALL CheckUserLogin('customer_username', 'customer_password');
 -- This will return 'Customer' if the credentials match a customer record
 
 
+
+--to add index
+ALTER TABLE OrderItems ADD INDEX idx_order_items_order_id(order_id);
+ALTER TABLE OrderItems ADD INDEX idx_order_items_book_id(book_id);
+ALTER TABLE Orders ADD INDEX idx_orders_user_id(user_id);
+ALTER TABLE Customer ADD INDEX idx_customer_username(username);
+
 -------------------------------------------------------------------------------------
 
 
