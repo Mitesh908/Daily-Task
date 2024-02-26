@@ -173,4 +173,3 @@ insert into batch2(caretiondate,name,age,trainername) values(getdate(),'riya',20
 
 select * from batch1 union all select * from batch2; -- To get the data from both the table
 
- -- 9131431694 yogesh
